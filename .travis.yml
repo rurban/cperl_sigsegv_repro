@@ -1,0 +1,44 @@
+notifications:
+  email:
+    recipients:
+      - CPAN-CI@leporine.io
+
+# This is probably a net-loss for setup etc - a bare 'C' will likely fare much better
+language: perl
+
+# Currently not trying osx: https://github.com/travis-ci/travis-ci/issues/2314
+os: linux
+
+addons:
+  apt:
+    packages:
+      - gdb
+      - libc6-dbg
+
+# The defaults run under the more rapid container infra. The hardware is
+# actually *much* slower, but the jobs start much faster, for more info see
+# https://docs.travis-ci.com/user/ci-environment/#Virtualization-environments
+# Combined with 'fast_finish' this will result in an "uh-oh" email as early
+# as possible
+dist: precise
+sudo: false
+
+before_install:
+  - true
+
+install:
+  - export MAKEFLAGS="-j10"
+  - git clone --single-branch --depth=1 --branch=master https://github.com/perl11/cperl /tmp/cperl-master
+  - perlbrew install --as cperl --verbose --notest --noman -DDEBUGGING -Duseithreads -j10 /tmp/cperl-master
+  - ln -s ~/perl5/perlbrew/perls/cperl/bin/cperl ~/perl5/perlbrew/perls/cperl/bin/perl
+  - perlbrew switch cperl
+
+before_script:
+  - mkdir $HOME/.cpan
+  - wget -qO- https://github.com/rurban/distroprefs/archive/master.tar.gz | tar -C $HOME/.cpan --strip-components 1 -zx distroprefs-master/prefs distroprefs-master/sources
+
+script:
+  - export PERL_MM_USE_DEFAULT=1
+  - SHELL=true cpanm --look Class::Inspector
+  - cd $HOME/.cpanm/work/*/Class-Inspector*
+  - gdb -batch -ex "run" -ex "bt" --args perl -Ilib t/02_main.t
