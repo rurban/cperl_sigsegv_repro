@@ -41,4 +41,4 @@ script:
   - export PERL_MM_USE_DEFAULT=1
   - SHELL=true cpanm --look Class::Inspector >/dev/null 2>/dev/null
   - cd $HOME/.cpanm/work/*/Class-Inspector*
-  - gdb -batch -ex "run" -ex "bt" --args perl -Ilib t/02_main.t
+  - gdb -batch -ex "run" -ex "bt" --args perl -Ilib -Dt t/02_main.t
