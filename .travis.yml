@@ -28,10 +28,10 @@ before_install:
 
 install:
   - export MAKEFLAGS="-j10"
-  - git clone --single-branch --depth=1 --branch=master https://github.com/perl11/cperl /tmp/cperl-master
-  - perlbrew install --as cperl --verbose --notest --noman -DDEBUGGING -Duseithreads -j10 /tmp/cperl-master
+  - git clone --single-branch --depth=1 --branch=master https://github.com/perl11/cperl /tmp/cperl-master >/dev/null 2>/dev/null
+  - perlbrew install --as cperl --notest --noman -DDEBUGGING -Duseithreads -j10 /tmp/cperl-master >/dev/null 2>/dev/null
   - ln -s ~/perl5/perlbrew/perls/cperl/bin/cperl ~/perl5/perlbrew/perls/cperl/bin/perl
-  - perlbrew switch cperl
+  - perlbrew switch cperl >/dev/null
 
 before_script:
   - mkdir $HOME/.cpan
@@ -39,6 +39,6 @@ before_script:
 
 script:
   - export PERL_MM_USE_DEFAULT=1
-  - SHELL=true cpanm --look Class::Inspector
+  - SHELL=true cpanm --look Class::Inspector >/dev/null 2>/dev/null
   - cd $HOME/.cpanm/work/*/Class-Inspector*
   - gdb -batch -ex "run" -ex "bt" --args perl -Ilib t/02_main.t
